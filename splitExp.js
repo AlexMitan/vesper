@@ -104,8 +104,8 @@ function evalTree(tree) {
         // leaf
         let leaf = tree || "";
         // console.log('leaf:', leaf);
-        // number
-        if (leaf.match(/[0-9]+/)) {
+        if (!isNaN(leaf)) {
+            // number
             leaf = Number(leaf);
             console.log('int:', leaf);
         }
@@ -142,6 +142,18 @@ function evalTree(tree) {
     return result;
 }
 
-let tree = makeTree(tokenise('(* 2 (+ 3 4) 5)'));
+function makeEnum(...args) {
+    let hash = {};
+    let ctr = 1;
+    for (let arg of args) {
+        hash[arg] = ctr++;
+    }
+    return hash;
+}
+
+console.log(makeEnum('LEFTPAREN', 'RIGHTPAREN', 'OP').LEFTPAREN)
+
+let tree = makeTree(tokenise('(+ "a b" c)'));
+// let tree = makeTree(tokenise('(* 2 (+ 3 4.5))'));
 logTree(tree);
 evalTree(tree);
