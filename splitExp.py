@@ -40,3 +40,9 @@ while i < len(tokens):
 
 print(raw)
 print(refined)
+
+def myFunc(a):
+    print(a)
+
+def myOther(a):
+    print(a)
