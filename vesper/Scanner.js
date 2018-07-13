@@ -1,4 +1,4 @@
-let { toks } = require('./standard');
+let { toks, keywords } = require('./standard');
 let Token = require('./Token');
 let Vesper = require('./Vesper')
 
@@ -26,13 +26,13 @@ class Scanner {
             case '}': this.addToken(toks.RIGHT_BRACE); break;
             case ']': this.addToken(toks.LEFT_SQ); break;
             case '[': this.addToken(toks.RIGHT_SQ); break;
-            case '\'':
-                // if (this.match('(')) {
-                    // comment till end of line
-                    // while (this.peek() != '\n' && !this.isAtEnd()) this.advance();
-                // }
-                this.addToken(toks.QUOTE);
-                break;
+            // case '\'':
+            //     // if (this.match('(')) {
+            //         // comment till end of line
+            //         // while (this.peek() != '\n' && !this.isAtEnd()) this.advance();
+            //     // }
+            //     this.addToken(toks.QUOTE);
+            //     break;
             case '/':
                 if (this.match('/')) {
                     // comment till end of line
@@ -66,7 +66,7 @@ class Scanner {
     }
     isSymbol(c) {
         // /[a-zA-Z0-9_+\-*\/\\=<>!&]+/
-        return /[\+\-\*\/!@#\$%\^&_\[\]]/.test(c);
+        return /[\+\-\*\/!@#\$%\^&_\']/.test(c);
     }
     isAlpha(c) {
         return (c >= 'a' && c <= 'z') ||
@@ -83,8 +83,8 @@ class Scanner {
         // TODO: error on: a"asd"d
 
         let text = this.source.substring(this.start, this.current);
-        // let tokenType = keywords[text] === undefined ? toks.IDENTIFIER : keywords[text];
-        let tokenType = toks.IDENTIFIER;
+        let tokenType = keywords[text] === undefined ? toks.IDENTIFIER : keywords[text];
+        // let tokenType = toks.IDENTIFIER;
         
         // console.log('identifier:', text, 'type:', tokenType);
 
@@ -163,7 +163,8 @@ class Scanner {
     }
     addToken(tokenType, literal=null) {
         let text = this.source.substring(this.start, this.current);
-        this.tokens.push(new Token(tokenType, text, literal, this.line));
+        let token = new Token(tokenType, text, literal, this.line, this.start);
+        this.tokens.push(token);
     }
     isAtEnd() {
         return this.current >= this.source.length;
@@ -174,8 +175,4 @@ class Scanner {
 }
 
 
-// let codeComm = `a  d`;
-let lispy = `(+ 2 3 5) (* 2 3)`;
-let vesperScanner = new Scanner(lispy);
-vesperScanner.scanTokens();
-
+module.exports = Scanner;

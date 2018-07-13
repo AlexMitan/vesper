@@ -10,8 +10,9 @@ function makeEnum(...args) {
 
 let toks = makeEnum(
     // Single-character tokens.
-    'LEFT_PAREN', 'RIGHT_PAREN', 'LEFT_BRACE', 'RIGHT_BRACE', 'LEFT_SQ', 'RIGHT_SQ',
-    'QUOTE',
+    'LEFT_PAREN', 'RIGHT_PAREN',
+    // 'LEFT_BRACE', 'RIGHT_BRACE', 'LEFT_SQ', 'RIGHT_SQ',
+    // 'QUOTE',
     // 'COMMA', 'DOT', 'MINUS', 'PLUS', 'SEMICOLON', 'SLASH', 'STAR',
 
     // // One or two character tokens.
@@ -22,7 +23,7 @@ let toks = makeEnum(
 
     // Literals.
     'IDENTIFIER', 'STRING', 'NUMBER',
-
+    'TRUE', 'FALSE',
     // // Keywords.
     // 'AND', 'CLASS', 'ELSE', 'FALSE', 'FUN', 'FOR', 'IF', 'NIL', 'OR',
     // 'PRINT', 'RETURN', 'SUPER', 'THIS', 'TRUE', 'VAR', 'WHILE',
@@ -31,7 +32,8 @@ let toks = makeEnum(
 );
 
 let keywords = {};
-keywords["defun"] =    toks.DEFUN;
+keywords["true"] =    toks.TRUE;
+keywords["false"] =    toks.FALSE;
 
 
 module.exports = {
