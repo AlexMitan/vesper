@@ -1,4 +1,4 @@
-let { toks } = require('./vesLibs.js');
+let { toks } = require('./standard.js');
 class Token {
     constructor(tokenType, lexeme, literal, line) {
         if (toks[tokenType] === undefined) {

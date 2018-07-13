@@ -1,27 +1,6 @@
-let { toks } = require('./vesLibs');
+let { toks } = require('./standard');
 let Token = require('./Token');
-
-class Vesper {
-    run(source="") {
-        let scanner = new Scanner(source);
-        let tokens = scanner.scanTokens();
-        // for (let i=0; i<tokens.length; i++) {
-        //     console.log(tokens[i]);
-        // }
-    }
-    // runLine() {
-    //     const readline = require('readline');
-
-    //     this.run(readline());
-    // }
-    static error(line, message) {
-        this.report(line, "", message)
-    }
-    static report(line, where, message) {
-        console.log("[line " + line + "] Error" + where + ": " + message);
-        Vesper.hadError = true;
-    }
-}
+let Vesper = require('./Vesper')
 
 class Scanner {
     constructor(source="") {
@@ -193,58 +172,10 @@ class Scanner {
         console.log(this.tokens.map(e => e.lexeme).join(' '));
     }
 }
-function exprTree(tokens, level=0) {
-    if (tokens.length === 0) {
-        Vesper.error(1, 'Unexpected EOF while reading');
-    }
-    // paren scan
-    let parenBalance = 0;
-    let parenError = false;
-    for (let i=0; i<tokens.length; i++) {
-        let token = tokens[i];
-        if (token.tokenType === toks.LEFT_PAREN) parenBalance += 1;
-        if (token.tokenType === toks.RIGHT_PAREN) parenBalance -= 1;
-        if (parenBalance < 0) {
-            // too many )
-            Vesper.error(token.line, 'Unexpected )');
-            parenBalance = 0;
-            parenError = true;
-        }
-    }
-    if (parenBalance > 0) {
-        // too many (
-        Vesper.error(token.line, 'Paren number' + parenBalance + 'not closed');
-        parenError = true;
-    }
-    if (parenError) {
-        Vesper.error(1, 'Unbalanced parentheses.');
-        throw 'Vesper error: parentheses';
-    }
-    let nodes = [[]];
-    for (let i=0; i<tokens.length; i++) {
-        let token = tokens[i];
-        if (token.tokenType === toks.LEFT_PAREN) {
-            nodes.push([]);
-        } else if (token.tokenType === toks.RIGHT_PAREN) {
-            nodes[nodes.length - 2].push(nodes[nodes.length - 1]);
-            nodes.pop();
-            
-        } else if (token.tokenType !== toks.EOF) {
-            nodes[nodes.length - 1].push(token.lexeme);
-        }
-    }
-    return nodes[0];
-}
+
 
 // let codeComm = `a  d`;
 let lispy = `(+ 2 3 5) (* 2 3)`;
 let vesperScanner = new Scanner(lispy);
 vesperScanner.scanTokens();
-// console.log(vesperScanner.tokens);
-// vesperScanner.logTokens();
 
-console.time('exptree');
-let tree = exprTree(vesperScanner.tokens);
-console.timeEnd('exptree');
-// vesperScanner.logTokens();
-console.log(tree);
