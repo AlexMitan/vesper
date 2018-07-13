@@ -30,7 +30,11 @@ let toks = makeEnum(
 
     'EOF'
 );
-
+class HashEnum {
+    constructor(...args) {
+        // TODO: error on getting wrong enum value
+    }
+}
 let keywords = {};
 keywords["true"] =    toks.TRUE;
 keywords["false"] =    toks.FALSE;

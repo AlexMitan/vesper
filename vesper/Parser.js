@@ -27,11 +27,13 @@ class Env {
         if (this.bindings[varName] !== undefined) {
             return this;
         } else if (this.enclosing !== null) {
-            return this.enclosing.find(varName);
+            return this.enclosing.find(varName, token);
         } else {
             // reached global without finding varName
             if (token) {
                 Vesper.error(token.line, "Identifier " + varName + " not defined");
+            } else {
+                Vesper.error('???', "Identifier " + varName + " not defined");
             }
         }
     }
@@ -54,7 +56,7 @@ function evalTree(exp, env={}) {
         if (token.tokenType === toks.FALSE) return false;
         if (token.tokenType === toks.NIL) return null;
         if (token.tokenType === toks.IDENTIFIER) {
-            return env.lookup(token.lexeme);
+            return env.lookup(token.lexeme, token);
         }
     } else {
         if (exp.length === 0) return null;
@@ -63,35 +65,52 @@ function evalTree(exp, env={}) {
         if (Array.isArray(op)) {
             op = evalTree(op, env);
         }
-        let args = exp.slice(1).map(item => evalTree(item, env));
-        
+        let args = exp.slice(1);
+        // let mappedArgs = exp.slice(1).map(item => evalTree(item, env));
         if (op.tokenType === toks.IDENTIFIER) {
             let lexeme = op.lexeme;
             switch(lexeme) {
                 case 'if':
                     // (if test then else)
                     if (args.length !== 3) Vesper.error(op.line, 'if operator takes three arguments');
+                    args = args.map(item => evalTree(item, env));
                     return args[0] ? args[1] : args[2];
                 case 'quote':
                 case '\'':
+                    // (' 1 2 3)
+                    args = args.map(item => evalTree(item, env));
                     return args;
                 case 'car':
+                    // HACK: something is weird here with the data type mixture
+                    // (car (' 1 2 3))
+                    args = args.map(item => evalTree(item, env));
                     return args[0][0];
+                    case 'define':
+                    // (define x 5)
+                    console.log(args);
+                    let varName = args[0];
+                    let value = args[1];
+                    console.log(`attempting to define ${varName} as ${value}`);
+                    env.find(varName)[varName] = evalTree(value, env);
+                    return null;
                 default:
-                    console.log('non-keyword op', op.lexeme, 'looking up...');
                     op = env.lookup(lexeme, op);
                     break;
             }
         }
         // console.log(op, 'applied to', ...args);
-        // HACK: checking if it's still a token
-        if (op.tokenType !== undefined) Vesper.error(op.line, `Invalid operand: ${op.lexeme}`);
+        // HACK: checking if it's not a function
+        // console.log('op:', op, typeof(op));
+        
+        if (typeof(op) !== 'function') Vesper.error(op.line || "???", `Invalid operand: ${op}`);
+        // if (op.tokenType === undefined) Vesper.error(op.line, `Invalid operand: ${op}`);
+        args = args.map(item => evalTree(item, env));
         return op(...args);
     }
 }
 let cond_3 = `(if false 1 (if true (if false 2 3) 4))`;
 let func_car_20 = `((car (' twice thrice)) 10)`;
-let lispy = `(+ 10 20)`;
+let lispy = `(+ "x" 66) (twice x)`;
 
 class Expr {
     constructor(arr, env) {
@@ -123,11 +142,9 @@ class Expr {
 
 let globals = new Env({
     "a": 4, "b": 70,
-    "twice": function(x) {
-        return x * 2;
-    },
-    "thrice": (x=100) => x * 3,
-    "+": (a, b) => a + b,
+    "twice": (x) => x * 2,
+    "thrice": (x) => x * 3,
+    "+": (...args) => args.reduce((curr, next) => curr + next),
     "log": (x) => console.log(x)
 });
 let env1 = new Env({"a": 5, "c": 6}, globals);
