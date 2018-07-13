@@ -1,15 +1,13 @@
 let { toks } = require('./vesLibs');
 let Token = require('./Token');
 
-console.log(toks);
-
 class Vesper {
     run(source="") {
         let scanner = new Scanner(source);
         let tokens = scanner.scanTokens();
-        for (let i=0; i<tokens.length; i++) {
-            console.log(tokens[i]);
-        }
+        // for (let i=0; i<tokens.length; i++) {
+        //     console.log(tokens[i]);
+        // }
     }
     // runLine() {
     //     const readline = require('readline');
@@ -42,7 +40,6 @@ class Scanner {
     }
     scanToken() {
         let c = this.advance();
-        console.log('char:', c);
         switch (c) {
             case '(': this.addToken(toks.LEFT_PAREN); break;
             case ')': this.addToken(toks.RIGHT_PAREN); break;
@@ -78,7 +75,6 @@ class Scanner {
             case '"': this.string(); break;
             default:
                 if (this.isDigit(c)) {
-                    console.log('digit', c)
                     this.number();
                 } else if (this.isSymbol(c) || this.isAlpha(c)) {
                     this.identifier();
@@ -108,12 +104,12 @@ class Scanner {
         // TODO: error on: a"asd"d
 
         let text = this.source.substring(this.start, this.current);
-        // let tokType = keywords[text] === undefined ? toks.IDENTIFIER : keywords[text];
-        let tokType = toks.IDENTIFIER;
+        // let tokenType = keywords[text] === undefined ? toks.IDENTIFIER : keywords[text];
+        let tokenType = toks.IDENTIFIER;
         
-        console.log('identifier:', text, 'type:', tokType);
+        // console.log('identifier:', text, 'type:', tokenType);
 
-        this.addToken(tokType);
+        this.addToken(tokenType);
     }
     blockComment() {
         let foundEnd = false;
@@ -186,17 +182,69 @@ class Scanner {
         this.current++;
         return this.source.charAt(this.current - 1);
     }
-    addToken(tokType, literal=null) {
+    addToken(tokenType, literal=null) {
         let text = this.source.substring(this.start, this.current);
-        this.tokens.push(new Token(tokType, text, literal, this.line));
+        this.tokens.push(new Token(tokenType, text, literal, this.line));
     }
     isAtEnd() {
         return this.current >= this.source.length;
     }
+    logTokens() {
+        console.log(this.tokens.map(e => e.lexeme).join(' '));
+    }
 }
+function exprTree(tokens, level=0) {
+    if (tokens.length === 0) {
+        Vesper.error(1, 'Unexpected EOF while reading');
+    }
+    // paren scan
+    let parenBalance = 0;
+    let parenError = false;
+    for (let i=0; i<tokens.length; i++) {
+        let token = tokens[i];
+        if (token.tokenType === toks.LEFT_PAREN) parenBalance += 1;
+        if (token.tokenType === toks.RIGHT_PAREN) parenBalance -= 1;
+        if (parenBalance < 0) {
+            // too many )
+            Vesper.error(token.line, 'Unexpected )');
+            parenBalance = 0;
+            parenError = true;
+        }
+    }
+    if (parenBalance > 0) {
+        // too many (
+        Vesper.error(token.line, 'Paren number' + parenBalance + 'not closed');
+        parenError = true;
+    }
+    if (parenError) {
+        Vesper.error(1, 'Unbalanced parentheses.');
+        throw 'Vesper error: parentheses';
+    }
+    let nodes = [[]];
+    for (let i=0; i<tokens.length; i++) {
+        let token = tokens[i];
+        if (token.tokenType === toks.LEFT_PAREN) {
+            nodes.push([]);
+        } else if (token.tokenType === toks.RIGHT_PAREN) {
+            nodes[nodes.length - 2].push(nodes[nodes.length - 1]);
+            nodes.pop();
+            
+        } else if (token.tokenType !== toks.EOF) {
+            nodes[nodes.length - 1].push(token.lexeme);
+        }
+    }
+    return nodes[0];
+}
+
 // let codeComm = `a  d`;
-let lispy = `'ads`
+let lispy = `(+ 2 3 5) (* 2 3)`;
 let vesperScanner = new Scanner(lispy);
 vesperScanner.scanTokens();
-console.log(vesperScanner.tokens);
-console.log(vesperScanner.tokens.map(e => e.lexeme).join(' '));
+// console.log(vesperScanner.tokens);
+// vesperScanner.logTokens();
+
+console.time('exptree');
+let tree = exprTree(vesperScanner.tokens);
+console.timeEnd('exptree');
+// vesperScanner.logTokens();
+console.log(tree);

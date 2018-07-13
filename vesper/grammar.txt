@@ -1,0 +1,20 @@
+LOX:
+expression → literal
+           | unary
+           | binary
+           | grouping ;
+
+literal    → NUMBER | STRING | "false" | "true" | "nil" ;
+grouping   → "(" expression ")" ;
+unary      → ( "-" | "!" ) expression ;
+binary     → expression operator expression ;
+operator   → "==" | "!=" | "<" | "<=" | ">" | ">="
+           | "+"  | "-"  | "*" | "/" ;
+
+
+(+ 2 (* 4 3)) (define x "a b c") (+ x "d e") (console.log time)
+
+GRAMMAR:
+program: expr*
+expr: "(" expr+ ")" | literal | identifier
+literal: NUMBER | STRING | "false" | "true" | "nil"
