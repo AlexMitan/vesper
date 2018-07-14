@@ -50,12 +50,12 @@ function evalTree(exp, env={}) {
     if (!Array.isArray(exp)) {
         // a token
         let token = exp;
-        if (token.tokenType === toks.NUMBER) return token.literal;
-        if (token.tokenType === toks.STRING) return token.literal;
-        if (token.tokenType === toks.TRUE) return true;
-        if (token.tokenType === toks.FALSE) return false;
-        if (token.tokenType === toks.NIL) return null;
-        if (token.tokenType === toks.IDENTIFIER) {
+        if (token.type === toks.NUMBER) return token.literal;
+        if (token.type === toks.STRING) return token.literal;
+        if (token.type === toks.TRUE) return true;
+        if (token.type === toks.FALSE) return false;
+        if (token.type === toks.NULL) return null;
+        if (token.type === toks.IDENTIFIER) {
             return env.lookup(token.lexeme, token);
         }
     } else {
@@ -67,7 +67,7 @@ function evalTree(exp, env={}) {
         }
         let args = exp.slice(1);
         // let mappedArgs = exp.slice(1).map(item => evalTree(item, env));
-        if (op.tokenType === toks.IDENTIFIER) {
+        if (op.type === toks.IDENTIFIER) {
             let lexeme = op.lexeme;
             switch(lexeme) {
                 case 'if':
@@ -103,14 +103,14 @@ function evalTree(exp, env={}) {
         // console.log('op:', op, typeof(op));
         
         if (typeof(op) !== 'function') Vesper.error(op.line || "???", `Invalid operand: ${op}`);
-        // if (op.tokenType === undefined) Vesper.error(op.line, `Invalid operand: ${op}`);
+        // if (op.type === undefined) Vesper.error(op.line, `Invalid operand: ${op}`);
         args = args.map(item => evalTree(item, env));
         return op(...args);
     }
 }
 let cond_3 = `(if false 1 (if true (if false 2 3) 4))`;
 let func_car_20 = `((car (' twice thrice)) 10)`;
-let lispy = `(+ "x" 66) (twice x)`;
+let lispy = `(+ "x" 66) (twice (car (' 1 2 3)))`;
 
 class Expr {
     constructor(arr, env) {
@@ -175,8 +175,8 @@ function exprTree(tokens, level=0) {
     let parenError = false;
     for (let i=0; i<tokens.length; i++) {
         let token = tokens[i];
-        if (token.tokenType === toks.LEFT_PAREN) parenBalance += 1;
-        if (token.tokenType === toks.RIGHT_PAREN) parenBalance -= 1;
+        if (token.type === toks.LEFT_PAREN) parenBalance += 1;
+        if (token.type === toks.RIGHT_PAREN) parenBalance -= 1;
         if (parenBalance < 0) {
             // too many )
             Vesper.error(token.line, 'Unexpected )');
@@ -196,13 +196,13 @@ function exprTree(tokens, level=0) {
     let nodes = [[]];
     for (let i=0; i<tokens.length; i++) {
         let token = tokens[i];
-        if (token.tokenType === toks.LEFT_PAREN) {
+        if (token.type === toks.LEFT_PAREN) {
             nodes.push([]);
-        } else if (token.tokenType === toks.RIGHT_PAREN) {
+        } else if (token.type === toks.RIGHT_PAREN) {
             nodes[nodes.length - 2].push(nodes[nodes.length - 1]);
             nodes.pop();
             
-        } else if (token.tokenType !== toks.EOF) {
+        } else if (token.type !== toks.EOF) {
             nodes[nodes.length - 1].push(token);
         }
     }

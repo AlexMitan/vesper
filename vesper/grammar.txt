@@ -16,5 +16,5 @@ operator   → "==" | "!=" | "<" | "<=" | ">" | ">="
 
 GRAMMAR:
 program: expr*
-expr: "(" expr* ")" | literal
-literal: IDENTIFIER | NUMBER | STRING | "false" | "true" | "nil"
+expr: "(" expr* ")" | token
+token: IDENTIFIER | NUMBER | STRING | FALSE | TRUE | NULL

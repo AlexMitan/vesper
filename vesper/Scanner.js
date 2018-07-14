@@ -83,12 +83,12 @@ class Scanner {
         // TODO: error on: a"asd"d
 
         let text = this.source.substring(this.start, this.current);
-        let tokenType = keywords[text] === undefined ? toks.IDENTIFIER : keywords[text];
-        // let tokenType = toks.IDENTIFIER;
+        let type = keywords[text] === undefined ? toks.IDENTIFIER : keywords[text];
+        // let type = toks.IDENTIFIER;
         
-        // console.log('identifier:', text, 'type:', tokenType);
+        // console.log('identifier:', text, 'type:', type);
 
-        this.addToken(tokenType);
+        this.addToken(type);
     }
     blockComment() {
         let foundEnd = false;
@@ -161,9 +161,9 @@ class Scanner {
         this.current++;
         return this.source.charAt(this.current - 1);
     }
-    addToken(tokenType, literal=null) {
+    addToken(type, literal=null) {
         let text = this.source.substring(this.start, this.current);
-        let token = new Token(tokenType, text, literal, this.line, this.start);
+        let token = new Token(type, text, literal, this.line, this.start);
         this.tokens.push(token);
     }
     isAtEnd() {

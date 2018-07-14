@@ -23,9 +23,9 @@ let toks = makeEnum(
 
     // Literals.
     'IDENTIFIER', 'STRING', 'NUMBER',
-    'TRUE', 'FALSE',
+    'TRUE', 'FALSE', 'NULL',
     // // Keywords.
-    // 'AND', 'CLASS', 'ELSE', 'FALSE', 'FUN', 'FOR', 'IF', 'NIL', 'OR',
+    // 'AND', 'CLASS', 'ELSE', 'FALSE', 'FUN', 'FOR', 'IF',  'OR',
     // 'PRINT', 'RETURN', 'SUPER', 'THIS', 'TRUE', 'VAR', 'WHILE',
 
     'EOF'
@@ -38,6 +38,7 @@ class HashEnum {
 let keywords = {};
 keywords["true"] =    toks.TRUE;
 keywords["false"] =    toks.FALSE;
+keywords["null"] =    toks.NULL;
 
 
 module.exports = {
