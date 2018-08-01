@@ -1,0 +1,22 @@
+(if (and (getVal LEFT) (getVal RIGHT))
+    (makePack DOWN (+ (getVal LEFT) (getVal RIGHT))
+    (setSpeed DOWN (getSpeed LEFT))))
+
+(if :cond:
+    (makepack DOWN :sumLR:)
+    (setspeed DOWN :speedLeft:))
+
+:cond:      (and (getVal LEFT) (getVal RIGHT))
+:sumLR:     (+ (getVal LEFT) (getVal RIGHT))
+:speedLeft: (getSpeed LEFT)
+:sqrt2 X:  (sqrt (sqrt X))
+:sqrt4 X:  (:sqrt2: (:sqrt2: X))
+
+program    : (expression | macroDef)*
+expression : "(" (expression | macroCall)* ")"
+           | literal
+
+macroCall  : ":" IDENTIFIER ":"
+macroDef   : ":" IDENTIFIER ":" expression ":"
+
+literal    : IDENTIFIER | NUMBER | STRING | FALSE | TRUE | NULL
