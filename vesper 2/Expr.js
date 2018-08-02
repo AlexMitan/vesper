@@ -7,9 +7,11 @@ class Base {
 }
 
 class SExpr extends Base {
-    constructor(children=[]) {
+    constructor(children, openingParen=null, closingParen=null) {
         super();
         this.children = children;
+        this.openingParen = openingParen;
+        this.closingParen = closingParen;
         this.type = 'SExpr';
     }
     accept(visitor) {

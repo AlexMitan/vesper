@@ -28,8 +28,6 @@ class Scanner {
     }
     scanToken() {
         let char = this.advance();
-        console.log(char);
-        
         switch (char) {
             case '(': this.addToken(toks.LEFT_PAREN); break;
             case ')': this.addToken(toks.RIGHT_PAREN); break;
@@ -66,10 +64,10 @@ class Scanner {
             case '"': this.string(); break;
             case '-':
                 if (this.isDigit(this.peek())) {
-                    console.log('negative number');
-                    
                     this.advance();
                     this.number(true);
+                } else {
+                    this.identifier();
                 }
                 break;
             default:
@@ -87,7 +85,7 @@ class Scanner {
     isSymbol(c) {
         // /[a-zA-Z0-9_+\-*\/\\=<>!&]+/
         // +-*/!@#$%^&*'
-        return /[\+\*\/!@#\$%\^&_\']/.test(c);
+        return /[\+\*\/!@#\$%\^&_\'><=]/.test(c);
     }
     isAlpha(c) {
         return (c >= 'a' && c <= 'z') ||
@@ -166,8 +164,6 @@ class Scanner {
         }
 
         let value = this.source.substring(this.start, this.current);
-        console.log(`value: ${value}`);
-        
         this.addToken(toks.NUMBER, Number(value));
     }
     isSymbolChar(c) {

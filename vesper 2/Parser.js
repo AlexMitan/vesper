@@ -63,7 +63,7 @@ class Parser {
     sExpr() {
         // console.log('beginning sExpr');
         this.consume(toks.LEFT_PAREN, `Expected '(' at beginning of sExpr.`);
-        let paren = this.previous();
+        let openingParen = this.previous();
         let children = [];
         while (!this.match(toks.RIGHT_PAREN)) {
             if (this.isAtEnd()) {
@@ -71,7 +71,8 @@ class Parser {
             }
             children.push(this.child());
         }
-        return new Expr.SExpr(children);
+        let closingParen = this.previous();
+        return new Expr.SExpr(children, openingParen, closingParen);
     }
     // macroCall → "{" IDENTIFIER child* "}"
     macroCall() {
