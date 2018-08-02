@@ -1,6 +1,14 @@
 let { toks, keywords } = require('./standard');
-let Token = require('./Token');
-let Vesper = require('./Vesper')
+let { Token } = require('./Token');
+let { Vesper } = require('./Vesper')
+
+function error(line, message) {
+    report(line, "", message)
+}
+function report(line, where, message) {
+    // console.log(`[line ${line}, col ${column}] Error ${where}: ${message}`);
+    console.log(`[line ${line}] Error ${where}: ${message}`);
+}
 
 class Scanner {
     constructor(source="") {
@@ -8,7 +16,8 @@ class Scanner {
         this.tokens = [];
         this.start = 0;
         this.current = 0;
-        this.line = 1;
+        this.line = 0;
+        this.right = -1;
     }
     scanTokens() {
         while (!this.isAtEnd()) {
@@ -18,14 +27,17 @@ class Scanner {
         this.tokens.push(new Token(toks.EOF, "", null, this.line));
     }
     scanToken() {
-        let c = this.advance();
-        switch (c) {
+        let char = this.advance();
+        console.log(char);
+        
+        switch (char) {
             case '(': this.addToken(toks.LEFT_PAREN); break;
             case ')': this.addToken(toks.RIGHT_PAREN); break;
             case '{': this.addToken(toks.LEFT_BRACE); break;
             case '}': this.addToken(toks.RIGHT_BRACE); break;
-            case ']': this.addToken(toks.LEFT_SQ); break;
-            case '[': this.addToken(toks.RIGHT_SQ); break;
+            case '[': this.addToken(toks.LEFT_SQ); break;
+            case ']': this.addToken(toks.RIGHT_SQ); break;
+            // case ':': this.addToken(toks.COLON); break;
             // case '\'':
             //     // if (this.match('(')) {
             //         // comment till end of line
@@ -49,16 +61,24 @@ class Scanner {
         
             case '\n':
                 this.line++;
+                this.right = -1;
                 break;
-
             case '"': this.string(); break;
+            case '-':
+                if (this.isDigit(this.peek())) {
+                    console.log('negative number');
+                    
+                    this.advance();
+                    this.number(true);
+                }
+                break;
             default:
-                if (this.isDigit(c)) {
+                if (this.isDigit(char)) {
                     this.number();
-                } else if (this.isSymbol(c) || this.isAlpha(c)) {
+                } else if (this.isSymbol(char) || this.isAlpha(char)) {
                     this.identifier();
                 } else {
-                    Vesper.error(this.line, "Unexpected character.");
+                    error(this.line, "Unexpected character.");
                 }
                 break;
 
@@ -66,7 +86,8 @@ class Scanner {
     }
     isSymbol(c) {
         // /[a-zA-Z0-9_+\-*\/\\=<>!&]+/
-        return /[\+\-\*\/!@#\$%\^&_\']/.test(c);
+        // +-*/!@#$%^&*'
+        return /[\+\*\/!@#\$%\^&_\']/.test(c);
     }
     isAlpha(c) {
         return (c >= 'a' && c <= 'z') ||
@@ -114,7 +135,7 @@ class Scanner {
             return;
         }
 
-        // The closing ""
+        // The closing "
         this.advance();
 
         let value = this.source.substring(this.start + 1, this.current - 1);
@@ -127,19 +148,15 @@ class Scanner {
         this.current++;
         return true;
     }
-    peek() {
-        if (this.isAtEnd()) return '\0';
-        return this.source.charAt(this.current);
+    peek(n=0) {
+        if (this.current + n >= this.source.length) return '\0';
+        return this.source.charAt(this.current + n);
     }
-    peekNext() {
-        if (this.current + 1 >= this.source.length) return '\0';
-        return this.source.charAt(this.current + 1);
-    }
-    number() {
+    number(neg=false) {
         while (this.isDigit(this.peek())) this.advance();
 
         // Look for fractional part
-        if (this.peek() == '.' && this.isDigit(this.peekNext())) {
+        if (this.peek() == '.' && this.isDigit(this.peek(1))) {
             // Consume the .
             this.advance();
             while (this.isDigit(this.peek())) this.advance();
@@ -149,6 +166,8 @@ class Scanner {
         }
 
         let value = this.source.substring(this.start, this.current);
+        console.log(`value: ${value}`);
+        
         this.addToken(toks.NUMBER, Number(value));
     }
     isSymbolChar(c) {
@@ -158,12 +177,21 @@ class Scanner {
         return c >= '0' && c <= '9';
     }
     advance() {
+        this.right++;
         this.current++;
         return this.source.charAt(this.current - 1);
     }
     addToken(type, literal=null) {
         let text = this.source.substring(this.start, this.current);
-        let token = new Token(type, text, literal, this.line, this.start);
+        let token = new Token(type, text, literal, this.line, this.right);
+        // HACK: count lines and columns from 0 or 1?
+        let line = this.source.split('\n')[this.line];
+        // TODO: integrate this with proper error checking
+        // console.log(line);
+        // console.log(' '.repeat(this.right) + '^');
+        // console.log(`Token: ${token.type} ${token.lexeme} ${token.line} ${token.column}`);
+        // console.log('\n');
+        
         this.tokens.push(token);
     }
     isAtEnd() {
@@ -171,8 +199,9 @@ class Scanner {
     }
     logTokens() {
         console.log(this.tokens.map(e => e.lexeme).join(' '));
+        // console.log(this.tokens.map(e => e.type).join(' '));
     }
 }
 
 
-module.exports = Scanner;
+module.exports = { Scanner };

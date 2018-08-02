@@ -1,22 +1,40 @@
+
+(if (< health 0) (setDead this true) (set health (+ 1 health)))
+if
+    < health 0
+    setDead this true
+    set
+        health
+        + 1 health
+
+if( <(health, 0),
+    setDead(this, true),
+    set(health, +(1, health)))
+
 (if (and (getVal LEFT) (getVal RIGHT))
     (makePack DOWN (+ (getVal LEFT) (getVal RIGHT))
     (setSpeed DOWN (getSpeed LEFT))))
 
-(if :cond:
-    (makepack DOWN :sumLR:)
-    (setspeed DOWN :speedLeft:))
+(if {cond}
+    (makePack DOWN {sumLR})
+    (setSpeed DOWN {sqrt LEFT}))
 
-:cond:      (and (getVal LEFT) (getVal RIGHT))
-:sumLR:     (+ (getVal LEFT) (getVal RIGHT))
-:speedLeft: (getSpeed LEFT)
-:sqrt2 X:  (sqrt (sqrt X))
-:sqrt4 X:  (:sqrt2: (:sqrt2: X))
+[cond]      (and (getVal LEFT) (getVal RIGHT))
+[sumLR]     (+ (getVal LEFT) (getVal RIGHT))
+[speedLeft] (getSpeed LEFT)
+[sqrt2 X]  (sqrt (sqrt X))
+[sqrt4 X]  {sqrt2 {sqrt2 X}}
+[unless cond then else] (if cond else then)
 
-program    : (expression | macroDef)*
-expression : "(" (expression | macroCall)* ")"
-           | literal
+program     → instruction* EOF
+instruction → (child | macroDef)*
+macroDef    → "[" IDENTIFIER primary* "]" child
 
-macroCall  : ":" IDENTIFIER ":"
-macroDef   : ":" IDENTIFIER ":" expression ":"
+sExpr       → "(" child* ")"
+macroCall   → "{" IDENTIFIER child* "}"
 
-literal    : IDENTIFIER | NUMBER | STRING | FALSE | TRUE | NULL
+child       → sExpr 
+            | macroCall 
+            | primary
+
+primary     → IDENTIFIER | NUMBER | STRING | FALSE | TRUE | NULL

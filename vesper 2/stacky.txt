@@ -1,0 +1,28 @@
+health 0 <=        [ t/f
+:dead :alive ?jmp   [ 
+
+dead:
+this true setDead  [
+:end jmp
+
+alive:
+1 health +         [ (1 health +)
+health @0 set      [ 
+:end jmp
+
+end:
+
+
+<= health 0   [ bool
+?jmp :dead :alive
+
+dead:
+setDead this true
+jmp :end
+
+alive:
++ health 1     [ (+ health 1)
+health @0 set  [
+jmp :end
+
+end:

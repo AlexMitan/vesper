@@ -1,0 +1,6 @@
+
+{cond}      (and (getVal LEFT) (getVal RIGHT))
+{sumLR}     (+ (getVal LEFT) (getVal RIGHT))
+{speedLeft} (getSpeed LEFT)
+{sqrt2 X}   (sqrt (sqrt X))
+{sqrt4 X}   ({sqrt2} ({sqrt2} X))

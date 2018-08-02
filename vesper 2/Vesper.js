@@ -1,5 +1,5 @@
 let { toks } = require('./standard');
-// let Token = require('./Token');
+// let { Token } = require('./Token');
 let Scanner = require('./Scanner')
 
 class Vesper {
@@ -17,4 +17,4 @@ class Vesper {
     }
 }
 
-module.exports = Vesper;
+module.exports = { Vesper };

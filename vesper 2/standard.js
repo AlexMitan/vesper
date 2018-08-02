@@ -11,7 +11,8 @@ function makeEnum(...args) {
 let toks = makeEnum(
     // Single-character tokens.
     'LEFT_PAREN', 'RIGHT_PAREN',
-    // 'LEFT_BRACE', 'RIGHT_BRACE', 'LEFT_SQ', 'RIGHT_SQ',
+    'LEFT_BRACE', 'RIGHT_BRACE',
+    'LEFT_SQ', 'RIGHT_SQ',
     // 'QUOTE',
     // 'COMMA', 'DOT', 'MINUS', 'PLUS', 'SEMICOLON', 'SLASH', 'STAR',
 
@@ -24,6 +25,7 @@ let toks = makeEnum(
     // Literals.
     'IDENTIFIER', 'STRING', 'NUMBER',
     'TRUE', 'FALSE', 'NULL',
+    // 'COLON',
     // // Keywords.
     // 'AND', 'CLASS', 'ELSE', 'FALSE', 'FUN', 'FOR', 'IF',  'OR',
     // 'PRINT', 'RETURN', 'SUPER', 'THIS', 'TRUE', 'VAR', 'WHILE',
